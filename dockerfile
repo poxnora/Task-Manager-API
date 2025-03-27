@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     git \
     unzip \
     libpq-dev \
+    postgresql-client-15 \  
     && docker-php-ext-install pdo pdo_pgsql sockets
 
 # Install Composer
