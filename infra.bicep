@@ -41,7 +41,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06
 }
 
 resource appContainer 'Microsoft.App/containerApps@2024-10-02-preview' = {
-  name: '${acrName}-app'
+  name: '${toLower(acrName)}-app'
   location: location
   properties: {
     managedEnvironmentId: containerAppEnv.id
