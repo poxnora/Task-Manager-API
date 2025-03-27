@@ -22,7 +22,7 @@ on:
 
 env:
   ACR_NAME: TaskAppACR
-  IMAGE_PREFIX: TaskAppACR.azurecr.io/task-manager
+  IMAGE_PREFIX: taskappacr.azurecr.io/task-manager
 
 jobs:
   test:
