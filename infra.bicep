@@ -41,7 +41,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06
   }
 }
 
-resource appContainer 'Microsoft.App/containerApps@2022-03-01' = {
+resource appContainer 'Microsoft.App/containerApps@2024-10-02-preview' = {
   name: '${acrName}-app'
   location: location
   properties: {
@@ -89,7 +89,7 @@ resource appContainer 'Microsoft.App/containerApps@2022-03-01' = {
             }
           ]
           resources: {
-            cpu: 0.25
+            cpu: 0.25  // Line ~92
             memory: '0.5Gi'
           }
         }
