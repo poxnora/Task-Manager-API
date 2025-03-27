@@ -1,0 +1,13 @@
+version: '2.7'
+
+server:
+  address: 0.0.0.0:8080
+  command: "php bin/console baldinof:roadrunner:worker"
+
+http:
+  address: 0.0.0.0:8080
+  pool:
+    num_workers: 4
+
+rpc:
+  listen: tcp://127.0.0.1:6001

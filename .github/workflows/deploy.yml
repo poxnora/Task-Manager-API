@@ -1,0 +1,110 @@
+name: Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      deployToAzure:
+        description: 'Deploy to Azure?'
+        required: true
+        type: boolean
+        default: false
+
+env:
+  ACR_NAME: TaskAppACR
+  IMAGE_PREFIX: ${{ env.ACR_NAME }}.azurecr.io/task-manager
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: pdo_pgsql, sockets
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run PHPUnit tests
+        id: tests
+        run: composer test
+
+      - name: Run PHPStan analysis
+        if: success()
+        run: composer stan
+
+      - name: Run Coding Standards check
+        if: success()
+        id: cs-check
+        run: composer cs || echo "CS_FAILED=true" >> $GITHUB_ENV
+
+      - name: Fix Coding Standards if failed
+        if: success() && env.CS_FAILED == 'true'
+        run: composer cs-fix
+
+  deploy-to-azure:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.deployToAzure == 'true')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy Bicep file
+        uses: azure/arm-deploy@v1
+        with:
+          resourceGroupName: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          template: ./infra/main.bicep
+          parameters: |
+            acrName=${{ env.ACR_NAME }}
+            appImage=${{ env.IMAGE_PREFIX }}-app:${{ github.sha }}
+            postgresImage=${{ env.IMAGE_PREFIX }}-postgres:${{ github.sha }}
+            redisImage=${{ env.IMAGE_PREFIX }}-redis:${{ github.sha }}
+
+      - name: Logout of Azure
+        run: az logout
+
+  build-and-push:
+    needs: test
+    runs-on: ubuntu-latest
+    if: success() # Only runs if test job succeeds
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build and tag Docker images
+        run: |
+          docker-compose build
+          docker tag recruitment-task-devops-master-app ${{ env.IMAGE_PREFIX }}-app:${{ github.sha }}
+          docker tag postgres:15 ${{ env.IMAGE_PREFIX }}-postgres:${{ github.sha }}
+          docker tag redis:6.0 ${{ env.IMAGE_PREFIX }}-redis:${{ github.sha }}
+
+      - name: Log in to Azure Container Registry
+        if: github.event_name == 'push' || github.event.inputs.deployToAzure == 'true'
+        run: docker login ${{ env.ACR_NAME }}.azurecr.io -u ${{ secrets.ACR_USERNAME }} -p ${{ secrets.ACR_PASSWORD }}
+
+      - name: Push Docker images to ACR
+        if: github.event_name == 'push' || github.event.inputs.deployToAzure == 'true'
+        run: |
+          docker push ${{ env.IMAGE_PREFIX }}-app:${{ github.sha }}
+          docker push ${{ env.IMAGE_PREFIX }}-postgres:${{ github.sha }}
+          docker push ${{ env.IMAGE_PREFIX }}-redis:${{ github.sha }}
