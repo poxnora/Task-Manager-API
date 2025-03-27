@@ -33,4 +33,4 @@ RUN chmod +x /app/wait-for-postgres.sh
 EXPOSE 8080
 
 # Start RoadRunner
-CMD sh -c "/app/wait-for-postgres.sh && php bin/console doctrine:migrations:migrate --no-interaction && rr serve -c .rr.yaml"
+CMD sh -c "/app/wait-for-postgres.sh && php bin/console doctrine:migrations:migrate --no-interaction && php seed_tasks.php && rr serve -c .rr.yaml"

@@ -10,4 +10,5 @@ until pg_isready -h localhost -p 5432 -U user -d task_manager; do
   echo "Waiting for Postgres to be ready..."
   sleep 2
 done
+sleep 15
 echo "Postgres is up and ready!"
