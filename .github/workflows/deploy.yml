@@ -33,7 +33,7 @@ jobs:
           extensions: pdo_pgsql, sockets
 
       - name: Install Composer dependencies
-        run: composer install --prefer-dist --no-progress
+        run: rm -f composer.lock; composer require nyholm/psr7:1.8.1 symfony/psr-http-message-bridge:^2.3 spiral/roadrunner:^2.0 --no-scripts; composer install --optimize-autoloader --no-scripts
 
       - name: Run PHPUnit tests
         id: tests
