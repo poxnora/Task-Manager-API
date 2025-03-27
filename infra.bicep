@@ -3,7 +3,6 @@ param appImage string =  'tasks-img'
 param postgresImage string =  'postgres-img'
 param redisImage string =  'redis-img'
 param location string = 'westeurope'
-param resourceGroupName string = resourceGroup().name
 
 resource acr 'Microsoft.ContainerRegistry/registries@2024-11-01-preview' = {
   name: acrName
