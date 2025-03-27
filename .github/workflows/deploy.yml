@@ -10,12 +10,12 @@ on:
   workflow_dispatch:
     inputs:
       deployToAzure:
-        description: 'Deploy to Azure?'
+        description: 'Deploy to Azure'
         required: true
         type: boolean
         default: false
       pushToAcr:
-        description: 'Push to Acr?'
+        description: 'Push to Acr'
         required: true
         type: boolean
         default: false
@@ -77,7 +77,7 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           resourceGroupName: ${{ secrets.AZURE_RESOURCE_GROUP }}
-          template: ./infra/main.bicep
+          template: ./infra.bicep
           parameters: |
             acrName=${{ env.ACR_NAME }}
             appImage=${{ env.IMAGE_PREFIX }}-app:${{ github.sha }}
