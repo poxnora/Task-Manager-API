@@ -25,6 +25,9 @@ RUN rm -f composer.lock \
     && composer require nyholm/psr7:1.8.1 symfony/psr-http-message-bridge:^2.3 spiral/roadrunner:^2.0 --no-scripts \
     && composer install --optimize-autoloader --no-scripts
 
+COPY wait-for-postgres.sh /app/wait-for-postgres.sh
+RUN chmod +x /app/wait-for-postgres.sh
+
 # Expose port 8080
 EXPOSE 8080
 
