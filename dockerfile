@@ -29,4 +29,4 @@ RUN rm -f composer.lock \
 EXPOSE 8080
 
 # Start RoadRunner
-CMD ["rr", "serve", "-c", ".rr.yaml"]
+CMD ["/app/wait-for-postgres.sh", "&&", "php", "bin/console", "doctrine:migrations:migrate", "--no-interaction", "&&", "rr", "serve", "-c", ".rr.yaml"]
