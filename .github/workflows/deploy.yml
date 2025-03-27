@@ -78,13 +78,9 @@ jobs:
         with:
           resourceGroupName: ${{ secrets.AZURE_RESOURCE_GROUP }}
           template: ./infra.bicep
-          parameters: |
-            acrName=${{ env.ACR_NAME }}
-            appImage=${{ env.IMAGE_PREFIX }}-app:${{ github.sha }}
-            postgresImage=${{ env.IMAGE_PREFIX }}-postgres:${{ github.sha }}
-            redisImage=${{ env.IMAGE_PREFIX }}-redis:${{ github.sha }}
+          parameters: 'acrName=${{ env.ACR_NAME }} appImage=${{ env.IMAGE_PREFIX }}-app:${{ github.sha }} postgresImage=${{ env.IMAGE_PREFIX }}-postgres:${{ github.sha }} redisImage=${{ env.IMAGE_PREFIX }}-redis:${{ github.sha }}'
 
-      - name: Logout of Azure
+      - name: Logout from Azure
         run: az logout
 
   build-and-push:
