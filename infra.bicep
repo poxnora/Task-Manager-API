@@ -52,7 +52,7 @@ resource appContainer 'Microsoft.App/containerApps@2024-10-02-preview' = {
       }
       registries: [
         {
-          server: '${acrName}.azurecr.io'
+          server: '${toLower(acrName)}.azurecr.io'
           username: acr.listCredentials().username
           passwordSecretRef: 'acr-password'
         }
