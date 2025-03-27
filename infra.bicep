@@ -24,7 +24,7 @@ resource containerAppEnv 'Microsoft.App/managedEnvironments@2022-03-01' = {
       destination: 'log-analytics'
       logAnalyticsConfiguration: {
         customerId: logAnalyticsWorkspace.properties.customerId
-        sharedKey: logAnalyticsWorkspace.properties.primarySharedKey
+        sharedKey: logAnalyticsWorkspace.listKeys().primarySharedKey
       }
     }
   }
@@ -35,7 +35,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06
   location: location
   properties: {
     sku: {
-      name: 'PerGB2018' // Cheapest: ~$2.30/GB
+      name: 'PerGB2018'
     }
     retentionInDays: 30
   }
@@ -44,10 +44,6 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06
 resource appContainer 'Microsoft.App/containerApps@2022-03-01' = {
   name: '${acrName}-app'
   location: location
-  dependsOn: [
-    containerAppEnv
-    acr
-  ]
   properties: {
     managedEnvironmentId: containerAppEnv.id
     configuration: {
@@ -93,8 +89,8 @@ resource appContainer 'Microsoft.App/containerApps@2022-03-01' = {
             }
           ]
           resources: {
-            cpu: 0.25 // Minimum
-            memory: '0.5Gi' // Minimum
+            cpu: 0.25
+            memory: '0.5Gi'
           }
         }
         {
