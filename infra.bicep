@@ -89,7 +89,7 @@ resource appContainer 'Microsoft.App/containerApps@2024-10-02-preview' = {
             }
           ]
           resources: {
-            cpu: 0.25  // Line ~92
+            cpu: 0.5
             memory: '0.5Gi'
           }
         }
@@ -111,7 +111,7 @@ resource appContainer 'Microsoft.App/containerApps@2024-10-02-preview' = {
             }
           ]
           resources: {
-            cpu: 0.25
+            cpu: 0.5
             memory: '0.5Gi'
           }
         }
@@ -119,7 +119,7 @@ resource appContainer 'Microsoft.App/containerApps@2024-10-02-preview' = {
           name: 'redis'
           image: redisImage
           resources: {
-            cpu: 0.25
+            cpu: 0.5
             memory: '0.5Gi'
           }
         }
