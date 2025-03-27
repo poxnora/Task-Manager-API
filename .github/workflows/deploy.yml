@@ -93,7 +93,7 @@ jobs:
 
       - name: Build and tag Docker images
         run: |
-          docker-compose build
+          docker compose up --build
           docker tag recruitment-task-devops-master-app ${{ env.IMAGE_PREFIX }}-app:${{ github.sha }}
           docker tag postgres:15 ${{ env.IMAGE_PREFIX }}-postgres:${{ github.sha }}
           docker tag redis:6.0 ${{ env.IMAGE_PREFIX }}-redis:${{ github.sha }}
