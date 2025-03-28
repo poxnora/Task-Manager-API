@@ -41,7 +41,7 @@ class Task
 
     public function __construct()
     {
-        $this->status = TaskStatus::TODO; // Default status
+        $this->status = TaskStatus::TODO;
     }
 
     public function getId(): ?int
