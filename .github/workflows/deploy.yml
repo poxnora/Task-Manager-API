@@ -38,7 +38,7 @@ jobs:
           extensions: pdo_pgsql, sockets
 
       - name: Install Composer dependencies
-        run: rm -f composer.lock; composer require nyholm/psr7:1.8.1 symfony/psr-http-message-bridge:^2.3 spiral/roadrunner:^2.0 --no-scripts; composer install --optimize-autoloader --no-scripts
+        run: rm -f composer.lock; composer require doctrine/annotations lexik/jwt-authentication-bundle symfony/validator nyholm/psr7:1.8.1 symfony/psr-http-message-bridge:^2.3 spiral/roadrunner:^2.0 --no-scripts; composer install --optimize-autoloader --no-scripts
 
       - name: Run PHPUnit tests
         id: tests
