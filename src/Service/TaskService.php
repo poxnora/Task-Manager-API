@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Entity\Task;
-use App\Entity\TaskStatus;
 use App\Repository\TaskRepository;
 use Psr\Cache\CacheItemPoolInterface;
 
 class TaskService
 {
     private const CACHE_KEY_ALL_TASKS = 'all_tasks';
+
     private const CACHE_KEY_TASK_PREFIX = 'task_';
+
     private const CACHE_TTL = 3600; // 1 hour
 
     public function __construct(

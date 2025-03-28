@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -7,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 class UserControllerTest extends WebTestCase
 {
     private $client;
+
     private $entityManager;
 
     protected function setUp(): void
@@ -14,6 +17,14 @@ class UserControllerTest extends WebTestCase
         $this->markTestSkipped();
         $this->client = static::createClient();
         $this->entityManager = static::getContainer()->get('doctrine')->getManager();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->markTestSkipped();
+        parent::tearDown();
+        $this->entityManager->close();
+        $this->entityManager = null;
     }
 
     public function testRegisterUser(): void
@@ -24,10 +35,12 @@ class UserControllerTest extends WebTestCase
             '/api/register',
             [],
             [],
-            ['CONTENT_TYPE' => 'application/json'],
+            [
+                'CONTENT_TYPE' => 'application/json',
+            ],
             json_encode([
                 'email' => 'newuser@example.com',
-                'password' => 'password123'
+                'password' => 'password123',
             ])
         );
 
@@ -43,10 +56,12 @@ class UserControllerTest extends WebTestCase
             '/api/login_check', // LexikJWTAuthenticationBundle default endpoint
             [],
             [],
-            ['CONTENT_TYPE' => 'application/json'],
+            [
+                'CONTENT_TYPE' => 'application/json',
+            ],
             json_encode([
                 'username' => 'test@example.com',
-                'password' => 'test'
+                'password' => 'test',
             ])
         );
 
@@ -57,13 +72,5 @@ class UserControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertArrayHasKey('token', $data, 'Response should contain a JWT token');
         $this->assertNotEmpty($data['token'], 'JWT token should not be empty');
-    }
-
-    protected function tearDown(): void
-    {
-        $this->markTestSkipped();
-        parent::tearDown();
-        $this->entityManager->close();
-        $this->entityManager = null;
     }
 }

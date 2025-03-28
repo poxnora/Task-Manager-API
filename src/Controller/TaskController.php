@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Entity\Task;
@@ -30,9 +32,13 @@ class TaskController extends AbstractController
             $page = (int) $request->query->get('page', 1);
             $limit = (int) $request->query->get('limit', 10);
             $tasks = $this->taskService->findAll($page, $limit);
-            return $this->json($tasks, Response::HTTP_OK, [], ['groups' => ['task:read']]);
+            return $this->json($tasks, Response::HTTP_OK, [], [
+                'groups' => ['task:read'],
+            ]);
         } catch (\Exception $e) {
-            return $this->json(['error' => 'Failed to fetch tasks'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->json([
+                'error' => 'Failed to fetch tasks',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -42,12 +48,18 @@ class TaskController extends AbstractController
     {
         try {
             $task = $this->taskService->findById($id);
-            if (!$task) {
-                return $this->json(['error' => 'Task not found'], Response::HTTP_NOT_FOUND);
+            if (! $task) {
+                return $this->json([
+                    'error' => 'Task not found',
+                ], Response::HTTP_NOT_FOUND);
             }
-            return $this->json($task, Response::HTTP_OK, [], ['groups' => ['task:read']]);
+            return $this->json($task, Response::HTTP_OK, [], [
+                'groups' => ['task:read'],
+            ]);
         } catch (\Exception $e) {
-            return $this->json(['error' => 'Failed to fetch task'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->json([
+                'error' => 'Failed to fetch task',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -64,15 +76,23 @@ class TaskController extends AbstractController
 
             $errors = $this->validator->validate($task);
             if (count($errors) > 0) {
-                return $this->json(['errors' => (string) $errors], Response::HTTP_BAD_REQUEST);
+                return $this->json([
+                    'errors' => (string) $errors,
+                ], Response::HTTP_BAD_REQUEST);
             }
 
             $task = $this->taskService->create($task);
-            return $this->json($task, Response::HTTP_CREATED, [], ['groups' => ['task:read']]);
+            return $this->json($task, Response::HTTP_CREATED, [], [
+                'groups' => ['task:read'],
+            ]);
         } catch (\ValueError $e) {
-            return $this->json(['error' => 'Invalid status value'], Response::HTTP_BAD_REQUEST);
+            return $this->json([
+                'error' => 'Invalid status value',
+            ], Response::HTTP_BAD_REQUEST);
         } catch (\Exception $e) {
-            return $this->json(['error' => 'Failed to create task'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->json([
+                'error' => 'Failed to create task',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -82,8 +102,10 @@ class TaskController extends AbstractController
     {
         try {
             $task = $this->taskService->findById($id);
-            if (!$task) {
-                return $this->json(['error' => 'Task not found'], Response::HTTP_NOT_FOUND);
+            if (! $task) {
+                return $this->json([
+                    'error' => 'Task not found',
+                ], Response::HTTP_NOT_FOUND);
             }
 
             $data = json_decode($request->getContent(), true) ?? [];
@@ -95,15 +117,23 @@ class TaskController extends AbstractController
 
             $errors = $this->validator->validate($task);
             if (count($errors) > 0) {
-                return $this->json(['errors' => (string) $errors], Response::HTTP_BAD_REQUEST);
+                return $this->json([
+                    'errors' => (string) $errors,
+                ], Response::HTTP_BAD_REQUEST);
             }
 
             $task = $this->taskService->update($task);
-            return $this->json($task, Response::HTTP_OK, [], ['groups' => ['task:read']]);
+            return $this->json($task, Response::HTTP_OK, [], [
+                'groups' => ['task:read'],
+            ]);
         } catch (\ValueError $e) {
-            return $this->json(['error' => 'Invalid status value'], Response::HTTP_BAD_REQUEST);
+            return $this->json([
+                'error' => 'Invalid status value',
+            ], Response::HTTP_BAD_REQUEST);
         } catch (\Exception $e) {
-            return $this->json(['error' => 'Failed to update task'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->json([
+                'error' => 'Failed to update task',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -113,14 +143,20 @@ class TaskController extends AbstractController
     {
         try {
             $task = $this->taskService->findById($id);
-            if (!$task) {
-                return $this->json(['error' => 'Task not found'], Response::HTTP_NOT_FOUND);
+            if (! $task) {
+                return $this->json([
+                    'error' => 'Task not found',
+                ], Response::HTTP_NOT_FOUND);
             }
 
             $this->taskService->delete($task);
-            return $this->json(['message' => 'Task deleted'], Response::HTTP_NO_CONTENT);
+            return $this->json([
+                'message' => 'Task deleted',
+            ], Response::HTTP_NO_CONTENT);
         } catch (\Exception $e) {
-            return $this->json(['error' => 'Failed to delete task'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->json([
+                'error' => 'Failed to delete task',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

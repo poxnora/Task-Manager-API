@@ -14,7 +14,9 @@ use Symfony\Component\Cache\Adapter\ArrayAdapter;
 class TaskServiceTest extends TestCase
 {
     private TaskRepository $taskRepository;
+
     private ArrayAdapter $cache;
+
     private TaskService $taskService;
 
     protected function setUp(): void

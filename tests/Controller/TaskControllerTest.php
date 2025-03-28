@@ -1,15 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use App\Entity\User;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class TaskControllerTest extends WebTestCase
 {
     private $client;
+
     private $entityManager;
+
     private $token;
 
     protected function setUp(): void
@@ -20,8 +24,10 @@ class TaskControllerTest extends WebTestCase
 
         // Generate JWT token for the seeded user
         $userRepository = $this->entityManager->getRepository(User::class);
-        $user = $userRepository->findOneBy(['email' => 'test@example.com']);
-        if (!$user) {
+        $user = $userRepository->findOneBy([
+            'email' => 'test@example.com',
+        ]);
+        if (! $user) {
             throw new \Exception('Seeded user not found. Run php seed_sql.php first.');
         }
 
@@ -32,6 +38,14 @@ class TaskControllerTest extends WebTestCase
         $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $this->token));
     }
 
+    protected function tearDown(): void
+    {
+        $this->markTestSkipped();
+        parent::tearDown();
+        $this->entityManager->close();
+        $this->entityManager = null;
+    }
+
     public function testCreateTask(): void
     {
         $this->markTestSkipped();
@@ -40,11 +54,13 @@ class TaskControllerTest extends WebTestCase
             '/api/tasks',
             [],
             [],
-            ['CONTENT_TYPE' => 'application/json'],
+            [
+                'CONTENT_TYPE' => 'application/json',
+            ],
             json_encode([
                 'title' => 'Test Task',
                 'description' => 'Test Description',
-                'status' => 'todo' // Matches TaskStatus::TODO value
+                'status' => 'todo', // Matches TaskStatus::TODO value
             ])
         );
 
@@ -64,7 +80,9 @@ class TaskControllerTest extends WebTestCase
     {
         // Use seeded Task 1
         $this->markTestSkipped();
-        $task = $this->entityManager->getRepository('App\Entity\Task')->findOneBy(['title' => 'Task 1']);
+        $task = $this->entityManager->getRepository('App\Entity\Task')->findOneBy([
+            'title' => 'Task 1',
+        ]);
         $this->assertNotNull($task, 'Seeded task "Task 1" not found. Run php seed_sql.php first.');
 
         $this->client->request('GET', '/api/tasks/' . $task->getId());
@@ -75,7 +93,9 @@ class TaskControllerTest extends WebTestCase
     public function testUpdateTask(): void
     {
         $this->markTestSkipped();
-        $task = $this->entityManager->getRepository('App\Entity\Task')->findOneBy(['title' => 'Task 1']);
+        $task = $this->entityManager->getRepository('App\Entity\Task')->findOneBy([
+            'title' => 'Task 1',
+        ]);
         $this->assertNotNull($task, 'Seeded task "Task 1" not found. Run php seed_sql.php first.');
 
         $this->client->request(
@@ -83,11 +103,13 @@ class TaskControllerTest extends WebTestCase
             '/api/tasks/' . $task->getId(),
             [],
             [],
-            ['CONTENT_TYPE' => 'application/json'],
+            [
+                'CONTENT_TYPE' => 'application/json',
+            ],
             json_encode([
                 'title' => 'Updated Task',
                 'description' => 'Updated Description',
-                'status' => 'in_progress' // Matches TaskStatus::IN_PROGRESS value
+                'status' => 'in_progress', // Matches TaskStatus::IN_PROGRESS value
             ])
         );
 
@@ -98,18 +120,12 @@ class TaskControllerTest extends WebTestCase
     public function testDeleteTask(): void
     {
         $this->markTestSkipped();
-        $task = $this->entityManager->getRepository('App\Entity\Task')->findOneBy(['title' => 'Task 1']);
+        $task = $this->entityManager->getRepository('App\Entity\Task')->findOneBy([
+            'title' => 'Task 1',
+        ]);
         $this->assertNotNull($task, 'Seeded task "Task 1" not found. Run php seed_sql.php first.');
 
         $this->client->request('DELETE', '/api/tasks/' . $task->getId());
         $this->assertEquals(204, $this->client->getResponse()->getStatusCode());
-    }
-
-    protected function tearDown(): void
-    {
-        $this->markTestSkipped();
-        parent::tearDown();
-        $this->entityManager->close();
-        $this->entityManager = null;
     }
 }
