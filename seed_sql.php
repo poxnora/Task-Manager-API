@@ -1,17 +1,17 @@
 <?php
 
-declare(strict_types=1);
+require __DIR__.'/vendor/autoload.php';
 
-require __DIR__ . '/vendor/autoload.php';
-
+use App\Entity\Task;
+use App\Entity\User;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Tools\Setup;
 use Doctrine\DBAL\DriverManager;
 use Symfony\Component\Dotenv\Dotenv;
 
-// Load environment variables
 $dotenv = new Dotenv();
 $dotenv->load(__DIR__ . '/.env');
 
-// Get database connection
 $dbUrl = getenv('DATABASE_URL');
 $connection = DriverManager::getConnection(['url' => $dbUrl]);
 
@@ -43,5 +43,15 @@ for ($i = 0; $i < 10; $i++) {
         ]
     );
 }
-
+$connection->executeStatement(
+    'INSERT INTO users (id, email, roles, password) 
+     SELECT :id, :email, :roles, :password
+     WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = :email)',
+    [
+        'id' => 1,
+        'email' => 'test@example.com',
+        'roles' => json_encode(['ROLE_USER']), // Ensure roles are stored as JSON
+        'password' => '$2y$13$SZ8WzskPNukoDB4xzddjMOU1dRuqjiic85Fsm03FqTW4a/Cits0Sa',
+    ]
+);
 echo "Inserted 10 random tasks into the tasks table.\n";

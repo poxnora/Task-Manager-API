@@ -11,7 +11,7 @@ final class Version20240225120000 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Create tasks table matching updated Task entity';
+        return 'Create tasks and users tables for Task and User entities';
     }
 
     public function up(Schema $schema): void
@@ -24,10 +24,19 @@ final class Version20240225120000 extends AbstractMigration
             created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
             CONSTRAINT status_check CHECK (status IN (\'todo\', \'in_progress\', \'done\'))
         )');
+
+        $this->addSql('CREATE TABLE users (
+            id SERIAL PRIMARY KEY,
+            email VARCHAR(180) NOT NULL,
+            roles JSON NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            CONSTRAINT unique_email UNIQUE (email)
+        )');
     }
 
     public function down(Schema $schema): void
     {
         $this->addSql('DROP TABLE tasks');
+        $this->addSql('DROP TABLE users');
     }
 }
