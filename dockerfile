@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     git \
     unzip \
     libpq-dev \
+    postgresql-client-15 \  
     && docker-php-ext-install pdo pdo_pgsql sockets
 
 # Install Composer
@@ -25,8 +26,11 @@ RUN rm -f composer.lock \
     && composer require nyholm/psr7:1.8.1 symfony/psr-http-message-bridge:^2.3 spiral/roadrunner:^2.0 --no-scripts \
     && composer install --optimize-autoloader --no-scripts
 
+COPY wait-for-postgres.sh /app/wait-for-postgres.sh
+RUN chmod +x /app/wait-for-postgres.sh
+
 # Expose port 8080
 EXPOSE 8080
 
 # Start RoadRunner
-CMD ["rr", "serve", "-c", ".rr.yaml"]
+CMD sh -c "/app/wait-for-postgres.sh && php bin/console doctrine:migrations:migrate --no-interaction && php seed_tasks.php && rr serve -c .rr.yaml"
