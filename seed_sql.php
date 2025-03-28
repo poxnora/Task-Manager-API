@@ -50,7 +50,7 @@ $connection->executeStatement(
     [
         'id' => 1,
         'email' => 'test@example.com',
-        'roles' => json_encode(['ROLE_USER']), // Ensure roles are stored as JSON
+        'roles' => json_encode(['ROLE_USER']), 
         'password' => '$2y$13$SZ8WzskPNukoDB4xzddjMOU1dRuqjiic85Fsm03FqTW4a/Cits0Sa',
     ]
 );
