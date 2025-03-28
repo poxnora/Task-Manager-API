@@ -11,7 +11,7 @@ final class Version20240225120000 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Create tasks table';
+        return 'Create tasks table matching updated Task entity';
     }
 
     public function up(Schema $schema): void
@@ -19,11 +19,10 @@ final class Version20240225120000 extends AbstractMigration
         $this->addSql('CREATE TABLE tasks (
             id SERIAL PRIMARY KEY,
             title VARCHAR(255) NOT NULL,
-            description TEXT DEFAULT NULL,
-            completed BOOLEAN NOT NULL DEFAULT FALSE,
+            description VARCHAR(255) DEFAULT NULL,
+            status VARCHAR(255) NOT NULL DEFAULT \'todo\',
             created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-            updated_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL,
-            priority INT DEFAULT NULL
+            CONSTRAINT status_check CHECK (status IN (\'todo\', \'in_progress\', \'done\'))
         )');
     }
 

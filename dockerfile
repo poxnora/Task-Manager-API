@@ -23,7 +23,7 @@ COPY . .
 
 # Install PHP dependencies including PSR-7 and RoadRunner requirements
 RUN rm -f composer.lock \
-    && composer require nyholm/psr7:1.8.1 symfony/psr-http-message-bridge:^2.3 spiral/roadrunner:^2.0 --no-scripts \
+    && composer require symfony/validator nyholm/psr7:1.8.1 symfony/psr-http-message-bridge:^2.3 spiral/roadrunner:^2.0 --no-scripts \
     && composer install --optimize-autoloader --no-scripts
 
 COPY wait-for-postgres.sh /app/wait-for-postgres.sh

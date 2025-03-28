@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Repository;
 
 use App\Entity\Task;
@@ -10,6 +8,11 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Task>
+ *
+ * @method Task|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Task|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Task[]    findAll()
+ * @method Task[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class TaskRepository extends ServiceEntityRepository
 {
@@ -21,7 +24,6 @@ class TaskRepository extends ServiceEntityRepository
     public function save(Task $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
-
         if ($flush) {
             $this->getEntityManager()->flush();
         }
@@ -30,20 +32,23 @@ class TaskRepository extends ServiceEntityRepository
     public function remove(Task $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
-
         if ($flush) {
             $this->getEntityManager()->flush();
         }
     }
 
     /**
-     * @return Task[] Returns an array of Task objects
+     * Find all tasks with pagination.
+     *
+     * @return Task[]
      */
-    public function findAllOrderedByPriority(): array
+    public function findAllPaginated(int $page, int $limit): array
     {
+        $offset = ($page - 1) * $limit;
         return $this->createQueryBuilder('t')
-            ->orderBy('t.priority', 'DESC')
-            ->addOrderBy('t.createdAt', 'DESC')
+            ->orderBy('t.created_at', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
     }

@@ -24,26 +24,22 @@ $descriptions = [
     'High priority task', 'Routine check-in', 'Needs attention', null, 'Low urgency',
     'Technical task', 'Bug reported yesterday', 'Production release', 'Explore options', 'Unit tests'
 ];
-$priorities = [1, 2, 3, 4, 5];
+$statuses = ['todo', 'in_progress', 'done'];
 
 // Insert 10 random tasks
 for ($i = 0; $i < 10; $i++) {
     $title = $titles[array_rand($titles)];
     $description = $descriptions[array_rand($descriptions)];
-    $completed = rand(0, 1) ? true : false; // PHP boolean
+    $status = $statuses[array_rand($statuses)];
     $createdAt = (new DateTime())->format('Y-m-d H:i:s');
-    $updatedAt = $completed ? (new DateTime())->modify('-' . rand(1, 5) . ' days')->format('Y-m-d H:i:s') : null;
-    $priority = $priorities[array_rand($priorities)];
 
     $connection->executeStatement(
-        'INSERT INTO tasks (title, description, completed, created_at, updated_at, priority) VALUES (:title, :description, :completed, :created_at, :updated_at, :priority)',
+        'INSERT INTO tasks (title, description, status, created_at) VALUES (:title, :description, :status, :created_at)',
         [
             'title' => $title,
             'description' => $description,
-            'completed' => $completed ? 'TRUE' : 'FALSE', // Explicitly cast to PostgreSQL boolean
+            'status' => $status,
             'created_at' => $createdAt,
-            'updated_at' => $updatedAt,
-            'priority' => $priority
         ]
     );
 }

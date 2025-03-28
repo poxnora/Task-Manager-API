@@ -4,17 +4,15 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\DTO\TaskDTO;
 use App\Entity\Task;
+use App\Entity\TaskStatus;
 use App\Repository\TaskRepository;
 use Psr\Cache\CacheItemPoolInterface;
 
 class TaskService
 {
     private const CACHE_KEY_ALL_TASKS = 'all_tasks';
-
     private const CACHE_KEY_TASK_PREFIX = 'task_';
-
     private const CACHE_TTL = 3600; // 1 hour
 
     public function __construct(
@@ -26,15 +24,16 @@ class TaskService
     /**
      * @return Task[]
      */
-    public function findAll(): array
+    public function findAll(int $page = 1, int $limit = 10): array
     {
-        $cacheItem = $this->cache->getItem(self::CACHE_KEY_ALL_TASKS);
+        $cacheKey = self::CACHE_KEY_ALL_TASKS . "_p{$page}_l{$limit}";
+        $cacheItem = $this->cache->getItem($cacheKey);
 
         if ($cacheItem->isHit()) {
             return $cacheItem->get();
         }
 
-        $tasks = $this->taskRepository->findAllOrderedByPriority();
+        $tasks = $this->taskRepository->findAllPaginated($page, $limit);
 
         $cacheItem->set($tasks);
         $cacheItem->expiresAfter(self::CACHE_TTL);
@@ -63,21 +62,16 @@ class TaskService
         return $task;
     }
 
-    public function create(TaskDTO $taskDTO): Task
+    public function create(Task $task): Task
     {
-        $task = new Task();
-        $this->updateTaskFromDTO($task, $taskDTO);
-
         $this->taskRepository->save($task, true);
         $this->invalidateCache();
 
         return $task;
     }
 
-    public function update(Task $task, TaskDTO $taskDTO): Task
+    public function update(Task $task): Task
     {
-        $this->updateTaskFromDTO($task, $taskDTO);
-
         $this->taskRepository->save($task, true);
         $this->invalidateCache($task->getId());
 
@@ -90,17 +84,10 @@ class TaskService
         $this->invalidateCache($task->getId());
     }
 
-    private function updateTaskFromDTO(Task $task, TaskDTO $taskDTO): void
-    {
-        $task->setTitle($taskDTO->title);
-        $task->setDescription($taskDTO->description);
-        $task->setCompleted($taskDTO->completed);
-        $task->setPriority($taskDTO->priority);
-    }
-
     private function invalidateCache(?int $taskId = null): void
     {
-        $this->cache->deleteItem(self::CACHE_KEY_ALL_TASKS);
+        // Invalidate all paginated caches (simplified approach, could be optimized)
+        $this->cache->clear(self::CACHE_KEY_ALL_TASKS); // Clears all items with prefix
 
         if ($taskId) {
             $this->cache->deleteItem(self::CACHE_KEY_TASK_PREFIX . $taskId);
