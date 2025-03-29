@@ -28,7 +28,7 @@ class TaskControllerTest extends WebTestCase
             'email' => 'test@example.com',
         ]);
         if (! $user) {
-            throw new \Exception('Seeded user not found. Run php seed_sql.php first.');
+            throw new \Exception('Seeded user not found. Run php seed-sql.php first.');
         }
 
         $jwtManager = static::getContainer()->get(JWTTokenManagerInterface::class);
@@ -83,7 +83,7 @@ class TaskControllerTest extends WebTestCase
         $task = $this->entityManager->getRepository('App\Entity\Task')->findOneBy([
             'title' => 'Task 1',
         ]);
-        $this->assertNotNull($task, 'Seeded task "Task 1" not found. Run php seed_sql.php first.');
+        $this->assertNotNull($task, 'Seeded task "Task 1" not found. Run php seed-sql.php first.');
 
         $this->client->request('GET', '/api/tasks/' . $task->getId());
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
@@ -96,7 +96,7 @@ class TaskControllerTest extends WebTestCase
         $task = $this->entityManager->getRepository('App\Entity\Task')->findOneBy([
             'title' => 'Task 1',
         ]);
-        $this->assertNotNull($task, 'Seeded task "Task 1" not found. Run php seed_sql.php first.');
+        $this->assertNotNull($task, 'Seeded task "Task 1" not found. Run php seed-sql.php first.');
 
         $this->client->request(
             'PUT',
@@ -123,7 +123,7 @@ class TaskControllerTest extends WebTestCase
         $task = $this->entityManager->getRepository('App\Entity\Task')->findOneBy([
             'title' => 'Task 1',
         ]);
-        $this->assertNotNull($task, 'Seeded task "Task 1" not found. Run php seed_sql.php first.');
+        $this->assertNotNull($task, 'Seeded task "Task 1" not found. Run php seed-sql.php first.');
 
         $this->client->request('DELETE', '/api/tasks/' . $task->getId());
         $this->assertEquals(204, $this->client->getResponse()->getStatusCode());
