@@ -24,9 +24,9 @@ The `Dockerfile` sets up the PHP environment for the API.
 The `docker-compose.yml` orchestrates the multi-container setup.
 
 - **Services**:
-  - **app**: PHP-FPM container built from `Dockerfile`, exposing port `9000`, linked to `nginx`.
-  - **nginx**: Web server using `nginx:1.25`, serving the API on port `8080`, with custom config.
-  - **db**: PostgreSQL 16 database, with persistent data in a volume, port `5432`.
+  - **app**: App running on 8080
+  - **redis**: Redis serving on 6379
+  - **postgres**: PostgreSQL database, with persistent data in a volume, port 5432.
 - **Networking**: All services share a `task-manager-network` bridge network.
 - **Volumes**: Persistent storage for PostgreSQL data (`db-data`).
 
