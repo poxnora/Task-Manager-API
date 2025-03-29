@@ -43,6 +43,14 @@ The `infra.bicep` creates infrastrucutre on Azure
 
 ---
 
+## JWT Authentication
+Integration of **JSON Web Token (JWT)** authentication using the LexikJWTAuthenticationBundle to secure API endpoints. Key features include:
+- **Token Generation**: Users authenticate via `/api/login_check` with credentials `test@example.com`, `test`, receiving a JWT token.
+- **Protected Endpoints**: All `/api/*` routes require a `Bearer` token in the `Authorization` header.
+- **Implementation**: Added in the `jwt-code-features` branch to enhance security, ensuring only authenticated users can access task management functionality.
+
+---
+
 ## Controllers changes
 
 ### Class Structure
@@ -60,4 +68,27 @@ The `infra.bicep` creates infrastrucutre on Azure
 ### Better Error Handling
 - **Old**: Minimal error handling (only validation errors).
 - **New**: Comprehensive try-catch blocks for general exceptions and specific `\ValueError` (e.g., invalid status).
+
+---
+
+## Task Entity Changes
+
+### Annotations and Attributes
+- **Old**: Uses basic Doctrine ORM annotations (`#[ORM\Entity]`, `#[ORM\Column]`) without additional features.
+- **New**: Adds Symfony Serializer (`#[Groups]`) and Validator (`#[Assert]`) annotations for serialization and validation.
+.
+### Status Handling
+- **Old**: Uses a boolean `completed` field to track task status.
+- **New**: Introduces a `TaskStatus` enum (`TODO`, `IN_PROGRESS`, `DONE`) for more granular status tracking.
+
+### Validation
+- **Old**: No validation constraints.
+- **New**: Adds validation:
+  - `title`: Must not be blank, max 255 characters.
+  - `description`: Max 255 characters.
+  - `status`: Must not be blank.
+
+### Enum Definition
+- **Old**: No enum usage.
+- **New**: Adds `TaskStatus` enum with values `TODO`, `IN_PROGRESS`, `DONE` and a `values()` method for convenience.
 
