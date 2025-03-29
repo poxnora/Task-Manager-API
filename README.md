@@ -17,8 +17,8 @@ The `Dockerfile` sets up the PHP environment for the API.
 - **Composer**: Installs Composer and project dependencies via `composer install`.
 - **Configuration**:
   - Sets working directory to `/app`.
-  - Copies application code and sets ownership to `www-data`.
-- **Command**: Runs `php-fpm` to serve the API.
+  - Copies application code.
+- **Command**: Runs `wait-for-postgress.sh` and `seed-sql.sh` to populate DB and `rr serve` to start the API.
 
 ### Docker Compose
 The `docker-compose.yml` orchestrates the multi-container setup.
