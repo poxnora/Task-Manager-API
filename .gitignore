@@ -28,3 +28,11 @@
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
 /.vs
+
+###> baldinof/roadrunner-bundle ###
+/bin/rr
+###< baldinof/roadrunner-bundle ###
+
+###> phpstan/phpstan ###
+phpstan.neon
+###< phpstan/phpstan ###

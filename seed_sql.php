@@ -1,17 +1,17 @@
 <?php
 
-declare(strict_types=1);
+require __DIR__.'/vendor/autoload.php';
 
-require __DIR__ . '/vendor/autoload.php';
-
+use App\Entity\Task;
+use App\Entity\User;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Tools\Setup;
 use Doctrine\DBAL\DriverManager;
 use Symfony\Component\Dotenv\Dotenv;
 
-// Load environment variables
 $dotenv = new Dotenv();
 $dotenv->load(__DIR__ . '/.env');
 
-// Get database connection
 $dbUrl = getenv('DATABASE_URL');
 $connection = DriverManager::getConnection(['url' => $dbUrl]);
 
@@ -24,28 +24,34 @@ $descriptions = [
     'High priority task', 'Routine check-in', 'Needs attention', null, 'Low urgency',
     'Technical task', 'Bug reported yesterday', 'Production release', 'Explore options', 'Unit tests'
 ];
-$priorities = [1, 2, 3, 4, 5];
+$statuses = ['todo', 'in_progress', 'done'];
 
 // Insert 10 random tasks
 for ($i = 0; $i < 10; $i++) {
     $title = $titles[array_rand($titles)];
     $description = $descriptions[array_rand($descriptions)];
-    $completed = rand(0, 1) ? true : false; // PHP boolean
+    $status = $statuses[array_rand($statuses)];
     $createdAt = (new DateTime())->format('Y-m-d H:i:s');
-    $updatedAt = $completed ? (new DateTime())->modify('-' . rand(1, 5) . ' days')->format('Y-m-d H:i:s') : null;
-    $priority = $priorities[array_rand($priorities)];
 
     $connection->executeStatement(
-        'INSERT INTO tasks (title, description, completed, created_at, updated_at, priority) VALUES (:title, :description, :completed, :created_at, :updated_at, :priority)',
+        'INSERT INTO tasks (title, description, status, created_at) VALUES (:title, :description, :status, :created_at)',
         [
             'title' => $title,
             'description' => $description,
-            'completed' => $completed ? 'TRUE' : 'FALSE', // Explicitly cast to PostgreSQL boolean
+            'status' => $status,
             'created_at' => $createdAt,
-            'updated_at' => $updatedAt,
-            'priority' => $priority
         ]
     );
 }
-
+$connection->executeStatement(
+    'INSERT INTO users (id, email, roles, password) 
+     SELECT :id, :email, :roles, :password
+     WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = :email)',
+    [
+        'id' => 1,
+        'email' => 'test@example.com',
+        'roles' => json_encode(['ROLE_USER']), 
+        'password' => '$2y$13$SZ8WzskPNukoDB4xzddjMOU1dRuqjiic85Fsm03FqTW4a/Cits0Sa',
+    ]
+);
 echo "Inserted 10 random tasks into the tasks table.\n";

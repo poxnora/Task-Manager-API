@@ -23,7 +23,7 @@ COPY . .
 
 # Install PHP dependencies including PSR-7 and RoadRunner requirements
 RUN rm -f composer.lock \
-    && composer require nyholm/psr7:1.8.1 symfony/psr-http-message-bridge:^2.3 spiral/roadrunner:^2.0 --no-scripts \
+    && composer require doctrine/annotations lexik/jwt-authentication-bundle symfony/validator:6.3.12 nyholm/psr7:1.8.1 symfony/psr-http-message-bridge:^2.3 spiral/roadrunner:^2.0 --no-scripts \
     && composer install --optimize-autoloader --no-scripts
 
 COPY wait-for-postgres.sh /app/wait-for-postgres.sh
@@ -33,4 +33,4 @@ RUN chmod +x /app/wait-for-postgres.sh
 EXPOSE 8080
 
 # Start RoadRunner
-CMD sh -c "/app/wait-for-postgres.sh && php bin/console doctrine:migrations:migrate --no-interaction && php seed_tasks.php && rr serve -c .rr.yaml"
+CMD sh -c "/app/wait-for-postgres.sh && php bin/console doctrine:migrations:migrate --no-interaction && php seed-sql.php && rr serve -c .rr.yaml"

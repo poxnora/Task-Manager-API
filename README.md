@@ -1,73 +1,94 @@
-# Task Manager API - DevOps Recruitment Task
+# Task Manager API
 
-## Recruitment Task
+### Overview
+A RESTful Task Manager API built with PHP 8.2, Symfony 7, and JWT authentication, designed to manage tasks securely. Uses Roadrunner as an application server. This project leverages Docker for containerization and GitHub Actions for CI/CD and Azure for cloud deployment.
 
-Your task is:
+---
 
-1. **Application Containerization**
+## Docker, CI/CD, Azure
 
-2. **CI/CD Configuration**
-   - Choose one of the CI systems (Jenkins or GitHub Actions)
-   - Configure a pipeline that will:
-     - Run static code analysis
-     - Build and tag Docker images
-  - Use RoadRunner instead of traditional PHP-FPM + web server setup
+### Dockerfile
+The `Dockerfile` sets up the PHP environment for the API.
 
-## Tips
+- **Base Image**: Uses `php:8.2-fpm` as the foundation.
+- **Dependencies**:
+  - Installs system packages: `git`, `curl`, `libpq-dev`, etc.
+  - Adds PHP extensions: `pdo`, `pdo_pgsql`, `intl`.
+- **Composer**: Installs Composer and project dependencies via `composer install`.
+- **Configuration**:
+  - Sets working directory to `/app`.
+  - Copies application code.
+- **Command**: Runs `wait-for-postgress.sh` and `seed-sql.sh` to populate DB and `rr serve` to start the API.
 
-1. Familiarize yourself with the application code before starting work
-2. Remember to apply security best practices
-3. Document your solutions
-4. Be prepared to discuss your technical decisions during the interview
+### Docker Compose
+The `docker-compose.yml` orchestrates the multi-container setup.
 
-## Migrations
+- **Services**:
+  - **app**: App running on 8080
+  - **redis**: Redis serving on 6379
+  - **postgres**: PostgreSQL database, with persistent data in a volume, port 5432.
+- **Networking**: All services share a `task-manager-network` bridge network.
+- **Volumes**: Persistent storage for PostgreSQL data (`db-data`).
 
-```bash
-# Database configuration in .env
-# DATABASE_URL="postgresql://username:password@localhost:5432/task_manager"
+### GitHub Pipeline
+The `.github/workflows/pipeline.yml` defines a CI/CD pipeline.
 
-# Running migrations
-php bin/console doctrine:migrations:migrate
-```
+- **Steps**:
+  - **test**: Run tests and code checks
+  - **build-and-push**: Build app and push to ACR if specified
+  - **deploy-to-azure**: Create infrastrucutre on Azure and deploy app to Azure's Container Apps (optional)
+ 
+### Bicep
+The `infra.bicep` creates infrastrucutre on Azure
 
-## Project Description
+---
 
-Task Manager API is a simple application written in Symfony 6.3, used for managing tasks (todo list) via REST API. The application includes the following functionalities:
+## JWT Authentication
+Integration of **JSON Web Token (JWT)** authentication using the LexikJWTAuthenticationBundle to secure API endpoints. Key features include:
+- **Token Generation**: Users authenticate via `/api/login_check` with credentials `test@example.com`, `test`, receiving a JWT token.
+- **Protected Endpoints**: All `/api/*` routes require a `Bearer` token in the `Authorization` header.
+- **Implementation**: Added in the `jwt-code-features` branch to enhance security, ensuring only authenticated users can access task management functionality.
 
-- Displaying a list of tasks
-- Adding new tasks
-- Editing existing tasks
-- Deleting tasks
-- Marking tasks as completed
-- Task prioritization
+---
 
-The application uses PostgreSQL database for storing tasks and Redis for caching query results.
+## Controllers changes
 
-## Tests and code quality
+### Class Structure
+- **Old**: Standalone class with manually declared properties.
+- **New**: Extends `AbstractController`, leveraging Symfony's built-in features (e.g., `$this->json()`).
 
-The project includes:
+### Pagination support
+- **Old**: Simple `findAll()` with no pagination.
+- **New**: Adds pagination with `$page` and `$limit` query parameters, calling `findAll($page, $limit)`.
 
-1. Unit and functional tests using PHPUnit
-```bash
-composer test
-```
-2. Static code analysis using PHPStan (level 5)
-```bash
-composer stan
-```
-3. Code formatting using Symplify/Easy-Coding-Standard
-```bash
-# To check
-composer cs
+### JWT security
+- **Old**: No security attributes.
+- **New**: Adds `#[IsGranted('ROLE_USER')]` to all methods for role-based access control.
 
-# To fix
-composer cs-fix
-```
+### Better Error Handling
+- **Old**: Minimal error handling (only validation errors).
+- **New**: Comprehensive try-catch blocks for general exceptions and specific `\ValueError` (e.g., invalid status).
 
-## Technical Requirements
+---
 
-- PHP 8.1 or higher
-- Composer
-- PostgreSQL 15
-- Redis 6.0
-- Symfony CLI (optional)
+## Task Entity Changes
+
+### Annotations and Attributes
+- **Old**: Uses basic Doctrine ORM annotations (`#[ORM\Entity]`, `#[ORM\Column]`) without additional features.
+- **New**: Adds Symfony Serializer (`#[Groups]`) and Validator (`#[Assert]`) annotations for serialization and validation.
+.
+### Status Handling
+- **Old**: Uses a boolean `completed` field to track task status.
+- **New**: Introduces a `TaskStatus` enum (`TODO`, `IN_PROGRESS`, `DONE`) for more granular status tracking.
+
+### Validation
+- **Old**: No validation constraints.
+- **New**: Adds validation:
+  - `title`: Must not be blank, max 255 characters.
+  - `description`: Max 255 characters.
+  - `status`: Must not be blank.
+
+### Enum Definition
+- **Old**: No enum usage.
+- **New**: Adds `TaskStatus` enum with values `TODO`, `IN_PROGRESS`, `DONE` and a `values()` method for convenience.
+
